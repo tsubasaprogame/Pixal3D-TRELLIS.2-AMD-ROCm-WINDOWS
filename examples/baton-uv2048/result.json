@@ -1,0 +1,19 @@
+{
+  "backend": "windows-rocm",
+  "denoiserResolution": 1024,
+  "textureSize": 2048,
+  "seconds": 499,
+  "glbBytes": 22138764,
+  "glbPath": "examples/baton-uv2048/baton-uv2048.glb",
+  "validation": {
+    "bytes": 22138764,
+    "triangles": 662201,
+    "vertices": 357819,
+    "accepted": true,
+    "vertexColors": false,
+    "uvTexture": true,
+    "scope": "technical bounds; anatomy is not validated"
+  },
+  "vram": null,
+  "fallbackEvents": []
+}

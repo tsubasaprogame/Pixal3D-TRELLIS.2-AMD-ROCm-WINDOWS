@@ -1,0 +1,11 @@
+runtime/
+data/runtime/
+installer/downloads/
+__pycache__/
+*.pyc
+.env
+vault.json
+*.part
+native-base-ready.json
+native-extensions-ready.json
+native-ready.json
