@@ -26,7 +26,7 @@ def reference_sample(color_map, capture_positions):
         -capture_positions[..., 1],
     ))
     world /= np.linalg.norm(world, axis=-1, keepdims=True)
-    longitude = np.arctan2(world[..., 2], world[..., 0])
+    longitude = np.arctan2(-world[..., 2], world[..., 0])
     latitude = np.arcsin(np.clip(world[..., 1], -1.0, 1.0))
     height, width = color_map.shape[:2]
     u = np.mod((longitude + np.pi) / (2 * np.pi) * width - 0.5, width)
@@ -71,6 +71,18 @@ class EquirectangularSamplingTests(unittest.TestCase):
             torch.from_numpy(self.positions).float(),
         ).numpy()
         np.testing.assert_allclose(actual, expected, rtol=1e-6, atol=1e-6)
+
+    def test_east_of_greenwich_appears_on_screen_right(self):
+        color_map = np.zeros((2, 16, 3), dtype=np.float32)
+        color_map[..., 0] = np.linspace(0.0, 1.0, 16, dtype=np.float32)
+        # Camera at +X with +Y up has screen-right = -Z. East must move right.
+        world = np.array([[1.0, 0.0, -0.25], [1.0, 0.0, 0.25]])
+        positions = capture_from_world(world)
+        actual = sample_capture_positions(
+            torch.from_numpy(color_map).permute(2, 0, 1).float(),
+            torch.from_numpy(positions).float(),
+        ).numpy()
+        self.assertGreater(actual[0, 0], actual[1, 0])
 
     def test_longitude_wraps_across_equirectangular_seam(self):
         epsilon = math.radians(0.1)

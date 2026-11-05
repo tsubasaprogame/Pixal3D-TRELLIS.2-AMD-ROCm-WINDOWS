@@ -1,7 +1,7 @@
 # Cinematic Earth and Separate Cloud Layer Design
 
 Date: 2026-11-05
-Status: Earth accepted after raw-accessor UV validation and real GLTFLoader/WebGL multi-view review; separate cloud layer not started. An earlier trimesh-only acceptance was rejected and must not be used as visual evidence.
+Status: Earth accepted after raw-accessor V/longitude validation and real GLTFLoader/WebGL multi-view review; separate cloud layer not started. Earlier trimesh-only and V-only acceptance were rejected and must not be used as complete visual evidence.
 
 ## Purpose
 
@@ -68,8 +68,9 @@ Earth is accepted only when:
 - the asset is a single coherent cloud-free planet with no obvious duplicated shells, text or background geometry;
 - base-color and metallic-roughness images are embedded and are at least 2048 × 2048;
 - decoded embedded texture pixels match the standalone PNG files;
+- raw-accessor checks reject both inverted V and mirrored longitude; east of Greenwich must appear on screen-right;
 - full-atlas and enlarged UV-seam inspections show no obvious color displacement or seam regression;
-- previews from multiple sides do not reveal severe stretching, missing regions or unintended clouds;
+- previews from multiple sides show recognizable, unmirrored continents without severe stretching, missing regions or unintended clouds;
 - `parameters.json` records seed `42` and the actual generation settings;
 - no CPU fallback is used and no driver error is observed during the measured run.
 

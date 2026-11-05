@@ -27,7 +27,8 @@ def sample_capture_positions(color_map: torch.Tensor, positions: torch.Tensor) -
     """Bilinearly sample CHW colors; longitude wraps and latitude clamps.
 
     The GLB export transform maps capture coordinates to world coordinates as
-    ``(x, z, -y)``. World +Y is north and longitude increases toward +Z.
+    ``(x, z, -y)``. World +Y is north and longitude increases toward -Z, so
+    east appears on screen-right when Greenwich is viewed from +X.
     """
     if color_map.ndim != 3:
         raise ValueError("color_map must have CHW dimensions")
@@ -38,7 +39,7 @@ def sample_capture_positions(color_map: torch.Tensor, positions: torch.Tensor) -
 
     world = torch.stack((positions[..., 0], positions[..., 2], -positions[..., 1]), dim=-1)
     world = torch.nn.functional.normalize(world, p=2, dim=-1, eps=1e-12)
-    longitude = torch.atan2(world[..., 2], world[..., 0])
+    longitude = torch.atan2(-world[..., 2], world[..., 0])
     latitude = torch.asin(world[..., 1].clamp(-1.0, 1.0))
 
     _, height, width = color_map.shape
