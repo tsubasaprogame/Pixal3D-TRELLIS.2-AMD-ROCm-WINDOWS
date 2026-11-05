@@ -23,6 +23,21 @@ class CuBQLSourceContractTests(unittest.TestCase):
         self.assertIn('name="cumesh._xatlas"', setup)
         self.assertNotIn('name="cumesh._cubvh"', setup)
 
+    def test_replacement_source_overlay_is_published(self):
+        overlay = ROOT / "scripts/native/cubql-bvh"
+        required = (
+            "setup.py", "cumesh/bvh.py", "src/bvh/bvh_state.h",
+            "src/bvh/bvh_state_internal.h", "src/bvh/bvh_state.hip",
+            "src/bvh/bindings.cpp", "src/bvh/queries.hip",
+        )
+        for relative in required:
+            with self.subTest(file=relative):
+                path = overlay / relative
+                self.assertTrue(path.is_file(), f"Missing replacement source: {relative}")
+                text = path.read_text(encoding="utf-8")
+                self.assertNotIn("_cubvh", text)
+                self.assertNotIn("third_party/cubvh", text)
+
 
 if __name__ == "__main__":
     unittest.main()

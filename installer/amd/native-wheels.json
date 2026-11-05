@@ -47,8 +47,12 @@
   "extensions": [
     {
       "file": "cumesh-1.0-cp312-cp312-win_amd64.whl",
-      "size": 5649177,
-      "sha256": "27f4600536972e51c6f3967fa370132b7d0781f1a64be3c67f91ae0af8f1614b"
+      "size": 1965554,
+      "sha256": "8b48bc2730524a4760fecef64a15a87dc2763e489856e4f4d73dc06150918083",
+      "backend": "cuBQL",
+      "sourceRevision": "a7c1072119b34312e8b5dbf73a2e22628309acb7",
+      "gpuArchitecture": "gfx1201",
+      "toolchain": "ROCm 7.2.1 / PyTorch 2.9.1 / C++20"
     },
     {
       "file": "flex_gemm-1.0.0-cp312-cp312-win_amd64.whl",

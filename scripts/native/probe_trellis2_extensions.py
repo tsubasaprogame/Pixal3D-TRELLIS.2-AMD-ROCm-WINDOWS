@@ -21,7 +21,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
 sys.path.insert(0, str(SCRIPT_DIR / "patches"))
 
-MANDATORY_SHAPE_CHECKS = ("sparse_sdpa", "naf", "flex_gemm", "o_voxel", "cumesh")
+MANDATORY_SHAPE_CHECKS = ("sparse_sdpa", "naf", "flex_gemm", "o_voxel", "cumesh", "cumesh_bvh")
 DEFAULT_OUTPUT = REPO_ROOT / "data" / "runtime" / "diagnostics" / "native-amd" / "extensions.json"
 
 
@@ -323,6 +323,87 @@ def probe_cumesh():
     }
 
 
+def probe_cumesh_bvh():
+    from cumesh import bvh as bvh_wrapper
+    from cumesh import cuBVH
+
+    source = json.loads((REPO_ROOT / "installer/amd/cubql-source.json").read_text(encoding="utf-8"))
+    if bvh_wrapper._backend.__name__ != "cumesh._bvh":
+        raise RuntimeError(f"Unexpected CuMesh BVH backend: {bvh_wrapper._backend.__name__}")
+
+    vertices = torch.tensor([
+        [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
+        [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1],
+    ], dtype=torch.float32, device="cuda")
+    faces = torch.tensor([
+        [0, 2, 1], [0, 3, 2], [4, 5, 6], [4, 6, 7],
+        [0, 1, 5], [0, 5, 4], [1, 2, 6], [1, 6, 5],
+        [2, 3, 7], [2, 7, 6], [3, 0, 4], [3, 4, 7],
+    ], dtype=torch.int32, device="cuda")
+    bvh = cuBVH(vertices, faces)
+
+    origins = torch.tensor([
+        [0.0, 0.0, 0.0], [2.0, 2.0, 1.0], [0.25, 0.25, 1.0],
+    ], device="cuda")
+    directions = torch.tensor([
+        [1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 0.0, -2.0],
+    ], device="cuda")
+    positions, ray_faces, depths = bvh.ray_trace(origins, directions)
+    _assert_close(positions, torch.tensor([
+        [1.0, 0.0, 0.0], [2.0, 2.0, -999.0], [0.25, 0.25, 1.0],
+    ], device="cuda"))
+    _assert_close(depths, torch.tensor([1.0, 1000.0, 0.0], device="cuda"))
+    if int(ray_faces[0]) < 0 or int(ray_faces[2]) < 0:
+        raise RuntimeError("CuMesh BVH ray hits returned invalid face IDs")
+    if int(ray_faces[1]) != -1 or float(depths[1]) != 1000.0:
+        raise RuntimeError("CuMesh BVH violated the exact ray-miss contract")
+
+    points = torch.tensor([
+        [0.0, 0.0, 0.0], [2.0, 0.0, 0.0],
+        [0.25, 0.25, 1.0], [0.25, 0.25, 2.0],
+    ], device="cuda")
+    expected_udf = torch.tensor([1.0, 1.0, 0.0, 1.0], device="cuda")
+    distances, face_ids, uvw = bvh.unsigned_distance(points, return_uvw=True)
+    _assert_close(distances, expected_udf)
+    if uvw is None:
+        raise RuntimeError("CuMesh BVH did not return requested UVW coordinates")
+    _assert_close(uvw.sum(dim=1), torch.ones(len(points), device="cuda"))
+    if float(uvw.min()) < -2e-5 or int(face_ids.min()) < 0:
+        raise RuntimeError("CuMesh BVH returned invalid closest-face UVW data")
+    triangles = vertices[faces.long()]
+    closest = (triangles[face_ids] * uvw.unsqueeze(-1)).sum(dim=1)
+    _assert_close(torch.linalg.vector_norm(closest - points, dim=1), expected_udf)
+
+    expected_sdf = torch.tensor([-1.0, 1.0, 0.0, 1.0], device="cuda")
+    for mode in ("watertight", "raystab"):
+        signed, signed_faces, signed_uvw = bvh.signed_distance(points, return_uvw=True, mode=mode)
+        _assert_close(signed, expected_sdf)
+        _assert_close(signed.abs(), expected_udf)
+        if not torch.equal(signed_faces, face_ids) or signed_uvw is None:
+            raise RuntimeError(f"CuMesh BVH {mode} changed closest-face outputs")
+
+    large_count = 100001
+    repetitions = (large_count + len(points) - 1) // len(points)
+    large_points = points.repeat(repetitions, 1)[:large_count]
+    large_expected = expected_udf.repeat(repetitions)[:large_count]
+    large_distances, large_faces, _ = bvh.unsigned_distance(large_points)
+    _assert_close(large_distances, large_expected)
+    if int(large_faces.min()) < 0:
+        raise RuntimeError("CuMesh BVH large batch returned invalid face IDs")
+    torch.cuda.synchronize()
+    return {
+        "backend": "cuBQL",
+        "module": bvh_wrapper._backend.__name__,
+        "sourceRevision": source["commit"],
+        "ray": True,
+        "exactMiss": True,
+        "unsignedDistance": True,
+        "signedDistance": {"watertight": True, "raystab": True},
+        "uvw": True,
+        "largeBatch": {"count": large_count, "passed": True},
+    }
+
+
 def probe_optional(module_name):
     importlib.import_module(module_name)
     return {"importOnly": True}
@@ -334,6 +415,7 @@ PROBES = {
     "flex_gemm": probe_flex_gemm,
     "o_voxel": probe_o_voxel,
     "cumesh": probe_cumesh,
+    "cumesh_bvh": probe_cumesh_bvh,
     "natten": lambda: probe_optional("natten"),
     "nvdiffrast": lambda: probe_optional("nvdiffrast"),
 }
