@@ -19,6 +19,7 @@ def parse_args():
     parser.add_argument("--runtime", type=Path, required=True)
     parser.add_argument("--stable-runtime", type=Path, required=True)
     parser.add_argument("--capture", type=Path, required=True)
+    parser.add_argument("--color-map", type=Path)
     parser.add_argument("--output-dir", type=Path, required=True)
     return parser.parse_args()
 
@@ -37,12 +38,18 @@ def main():
     from cumesh.bvh import cuBVH
     from flex_gemm.ops.grid_sample import grid_sample_3d
     from tools.acceptance.cubql_acceptance import reconstruct_positions
+    from tools.acceptance.equirectangular import capture_to_glb_array, direct_map_attributes, raster_uv_to_glb
 
     output_dir = args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
     capture = torch.load(args.capture, map_location="cpu", weights_only=False)
     if not capture.get("capture_complete"):
         raise RuntimeError("Capture is incomplete")
+    color_map = None
+    if args.color_map:
+        with Image.open(args.color_map) as image:
+            colors = np.asarray(image.convert("RGB"), dtype=np.float32) / 255.0
+        color_map = torch.from_numpy(colors).permute(2, 0, 1).contiguous().cuda()
 
     vertices = capture["vertices"].numpy().astype(np.float32, copy=True)
     faces = capture["faces"].numpy().astype(np.int32, copy=True)
@@ -93,20 +100,23 @@ def main():
         query_seconds += time.perf_counter() - query_started
 
         sample_started = time.perf_counter()
-        attrs = grid_sample_3d(
-            capture["voxel_feats"].cuda(),
-            capture["voxel_coords"].cuda(),
-            shape=torch.Size([*capture["voxel_shape"], *capture["voxel_spatial_shape"]]),
-            grid=((closest + 0.5) * resolution).reshape(1, -1, 3),
-            mode="trilinear",
-        )
+        if color_map is None:
+            attrs = grid_sample_3d(
+                capture["voxel_feats"].cuda(),
+                capture["voxel_coords"].cuda(),
+                shape=torch.Size([*capture["voxel_shape"], *capture["voxel_spatial_shape"]]),
+                grid=((closest + 0.5) * resolution).reshape(1, -1, 3),
+                mode="trilinear",
+            )
+        else:
+            attrs = direct_map_attributes(color_map, closest)
         torch.cuda.synchronize()
         sample_seconds += time.perf_counter() - sample_started
         distance_parts.append(distances.cpu())
         face_parts.append(face_ids.cpu())
         uvw_parts.append(uvw.cpu())
         position_parts.append(closest.cpu())
-        attr_parts.append(attrs.reshape(-1, capture["voxel_feats"].shape[1]).cpu())
+        attr_parts.append(attrs.reshape(-1, 6).cpu())
 
     result = {
         "distances": torch.cat(distance_parts),
@@ -136,13 +146,9 @@ def main():
     base_texture = Image.fromarray(np.concatenate([base_color, alpha], axis=-1))
     mr_texture = Image.fromarray(np.concatenate([np.zeros_like(metallic), roughness, metallic], axis=-1))
 
-    out_vertices = vertices.copy()
-    out_normals = normals.copy()
-    out_vertices[:, [1, 2]] = out_vertices[:, [2, 1]]
-    out_vertices[:, 1] *= -1
-    out_normals[:, [1, 2]] = out_normals[:, [2, 1]]
-    out_normals[:, 1] *= -1
-    uv[:, 1] = 1 - uv[:, 1]
+    out_vertices = capture_to_glb_array(vertices)
+    out_normals = capture_to_glb_array(normals)
+    uv = raster_uv_to_glb(uv)
     material = trimesh.visual.material.PBRMaterial(
         baseColorTexture=base_texture,
         baseColorFactor=np.array([255, 255, 255, 255], dtype=np.uint8),
@@ -177,6 +183,9 @@ def main():
         "cumesh_backend": cumesh.bvh._backend.__name__,
         "capture": str(args.capture),
         "capture_sha256": result["capture_sha256"],
+        "color_source": "generative-voxel-features" if color_map is None else "equirectangular-map",
+        "color_map": str(args.color_map) if args.color_map else None,
+        "color_map_sha256": hashlib.sha256(args.color_map.read_bytes()).hexdigest() if args.color_map else None,
         "vertices": int(out_vertices.shape[0]),
         "triangles": int(faces.shape[0]),
         "covered_texels": int(result["mask"].sum()),
@@ -187,7 +196,8 @@ def main():
             "rasterize": raster_seconds,
             "bvh_build": build_seconds,
             "bvh_queries": query_seconds,
-            "grid_sample": sample_seconds,
+            "grid_sample": sample_seconds if color_map is None else None,
+            "equirectangular_sample": sample_seconds if color_map is not None else None,
         },
         "vram_bytes": {
             "peak_allocated": int(torch.cuda.max_memory_allocated()),

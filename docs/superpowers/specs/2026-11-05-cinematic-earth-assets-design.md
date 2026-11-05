@@ -1,7 +1,7 @@
 # Cinematic Earth and Separate Cloud Layer Design
 
 Date: 2026-11-05
-Status: approved design, written specification pending user review
+Status: Earth accepted after structural and multi-view visual validation; separate cloud layer not started
 
 ## Purpose
 
