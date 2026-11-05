@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "backend": "cumesh._cubvh",
+  "torch": "2.9.1+rocm7.2.1",
+  "gpu": "AMD Radeon RX 9070 XT",
+  "tolerance": 2e-05,
+  "meshes": [
+    "cube",
+    "open",
+    "degenerate"
+  ],
+  "queries": 9,
+  "rays": 4
+}
