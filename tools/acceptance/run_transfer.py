@@ -52,8 +52,12 @@ def main():
     resolution = int(capture["resolution"])
     if uv.shape[0] == 0:
         vmapping, faces, uv = _uv_unwrap(capture["vertices"], capture["faces"].long(), "adaptive", 1024, 2, 0.0)
-        vertices = vertices[vmapping.numpy()]
-        normals = normals[vmapping.numpy()]
+        # _uv_unwrap returns numpy arrays (vmapping int64, faces int64, uv float32);
+        # cuBVH requires int32 triangles
+        vertices = vertices[np.asarray(vmapping)]
+        normals = normals[np.asarray(vmapping)]
+        faces = np.ascontiguousarray(faces, dtype=np.int32)
+        uv = np.ascontiguousarray(uv, dtype=np.float32)
     uv[:, 1] = 1 - uv[:, 1]
 
     torch.cuda.reset_peak_memory_stats()
