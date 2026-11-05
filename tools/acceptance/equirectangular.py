@@ -17,8 +17,10 @@ def capture_to_glb_array(values: np.ndarray) -> np.ndarray:
 
 
 def raster_uv_to_glb(uv: np.ndarray) -> np.ndarray:
-    """Keep top-left raster UV unchanged for glTF; do not flip V twice."""
-    return np.asarray(uv, dtype=np.float32).copy()
+    """Convert rasterizer V to the glTF orientation used by this exporter."""
+    converted = np.asarray(uv, dtype=np.float32).copy()
+    converted[..., 1] = 1.0 - converted[..., 1]
+    return converted
 
 
 def sample_capture_positions(color_map: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:

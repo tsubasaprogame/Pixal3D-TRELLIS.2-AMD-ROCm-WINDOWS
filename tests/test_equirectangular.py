@@ -115,12 +115,12 @@ class EquirectangularSamplingTests(unittest.TestCase):
         np.testing.assert_allclose(actual, expected)
         np.testing.assert_allclose(capture[0], [1.0, 2.0, 3.0])
 
-    def test_raster_uv_is_exported_without_a_second_vertical_flip(self):
+    def test_raster_uv_is_exported_with_gltf_vertical_orientation(self):
         raster_uv_to_glb = getattr(equirectangular, "raster_uv_to_glb", None)
         self.assertIsNotNone(raster_uv_to_glb, "raster-to-GLB UV conversion is not implemented")
         raster = np.array([[0.2, 0.8], [0.7, 0.1]], dtype=np.float32)
         exported = raster_uv_to_glb(raster)
-        np.testing.assert_allclose(exported, raster)
+        np.testing.assert_allclose(exported, [[0.2, 0.2], [0.7, 0.9]])
         np.testing.assert_allclose(raster, [[0.2, 0.8], [0.7, 0.1]])
 
     @unittest.skipUnless(torch.cuda.is_available(), "GPU is required")

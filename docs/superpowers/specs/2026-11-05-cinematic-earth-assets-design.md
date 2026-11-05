@@ -1,7 +1,7 @@
 # Cinematic Earth and Separate Cloud Layer Design
 
 Date: 2026-11-05
-Status: Earth accepted after structural and multi-view visual validation; separate cloud layer not started
+Status: Earth accepted after raw-accessor UV validation and real GLTFLoader/WebGL multi-view review; separate cloud layer not started. An earlier trimesh-only acceptance was rejected and must not be used as visual evidence.
 
 ## Purpose
 
