@@ -1,0 +1,124 @@
+{
+  "verificationDate": "2026-11-05",
+  "passed": true,
+  "gpu": "AMD Radeon RX 9070 XT",
+  "gpuArchitecture": "gfx1201",
+  "backend": "cumesh._bvh",
+  "cubqlRevision": "a7c1072119b34312e8b5dbf73a2e22628309acb7",
+  "wheel": {
+    "path": "installer/amd/wheels/cumesh-1.0-cp312-cp312-win_amd64.whl",
+    "sha256": "8b48bc2730524a4760fecef64a15a87dc2763e489856e4f4d73dc06150918083"
+  },
+  "capture": {
+    "path": "data/runtime/diagnostics/native-amd/baton-cubql-capture.pt",
+    "sha256": "e2998746546846da7c0b7f7cdcfef322a08fc0c719f4d201e020710467416b4d",
+    "bytes": 97865801,
+    "seconds": 83.6,
+    "vertices": 357819,
+    "triangles": 662201,
+    "uvPresent": true,
+    "voxelFeaturesShape": [1476717, 6],
+    "voxelSpatialShape": [1024, 830, 671],
+    "allFloatValuesFinite": true
+  },
+  "old": {
+    "backend": "cumesh._cubvh",
+    "coveredTexels": 2205811,
+    "seconds": {
+      "total": 7.28978239998105,
+      "rasterize": 2.597277099994244,
+      "bvhBuild": 0.2369856000004802,
+      "bvhQueries": 0.01882840000325814,
+      "gridSample": 0.09491640000487678
+    },
+    "vramBytes": {
+      "peakAllocated": 2768168960,
+      "peakReserved": 3238002688
+    },
+    "glbBytes": 26432824,
+    "fallbackEvents": [],
+    "driverErrors": []
+  },
+  "new": {
+    "backend": "cumesh._bvh",
+    "coveredTexels": 2205811,
+    "seconds": {
+      "total": 6.941724399977829,
+      "rasterize": 2.623084099992411,
+      "bvhBuild": 0.04906879999907687,
+      "bvhQueries": 0.015463200048543513,
+      "gridSample": 0.09353269994608127
+    },
+    "vramBytes": {
+      "peakAllocated": 2768168960,
+      "peakReserved": 3238002688
+    },
+    "glbBytes": 26432812,
+    "fallbackEvents": [],
+    "driverErrors": []
+  },
+  "comparison": {
+    "passed": true,
+    "sameCapture": true,
+    "sameMask": true,
+    "allFinite": true,
+    "faceMismatches": 51,
+    "maxDistanceAbsDiff": 1.9397813844079792e-7,
+    "maxPositionAbsDiff": 3.1441450119018555e-6,
+    "maxAttrAbsDiff": 9.53376293182373e-5,
+    "maxUvwAbsDiff": 0.9974327087402344,
+    "tolerances": {
+      "distance": 0.00002,
+      "position": 0.00002,
+      "attributes": 0.0001
+    },
+    "atlas": {
+      "width": 2048,
+      "height": 2048,
+      "changedTexels": 1598,
+      "maxChannelAbsDiff": 3,
+      "meanChannelAbsDiff": 0.00010406970977783203,
+      "visualSeamReviewPassed": true
+    }
+  },
+  "glbValidation": {
+    "passed": true,
+    "oldNewGeometryIdentical": true,
+    "geometryAndUvMatchCapture": true,
+    "baseColorEmbedded2048": true,
+    "metallicRoughnessEmbedded2048": true,
+    "texturePixelsMatchSavedAtlases": true
+  },
+  "tests": {
+    "python": {
+      "command": "../afamd/venv/Scripts/python.exe -m unittest discover -s tests -p test_*.py -v",
+      "ran": 34,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.679,
+      "passed": true,
+      "includesRealGpuParity": true
+    },
+    "powerShellSmoke": {
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tests/Smoke.ps1",
+      "passed": true
+    },
+    "cumeshBvhProbe": {
+      "passed": true,
+      "ray": true,
+      "exactMiss": true,
+      "unsignedDistance": true,
+      "signedDistanceWatertight": true,
+      "signedDistanceRaystab": true,
+      "uvw": true,
+      "largeBatchCount": 100001,
+      "largeBatchPassed": true
+    }
+  },
+  "scopeLimitations": [
+    "The production AMD postprocess_mesh path uses _rasterize_uv_barycentric, _interp_vertex_attr and grid_sample_3d and bypasses BVH. BVH replacement evidence is the separate old/new closest-point texture transfer on one identical capture, not the ordinary production baton.",
+    "No fallback events or driver errors were observed in the measured old/new transfers. This does not prove absence of future driver resets, display instability or micro-freezes.",
+    "Large capture, query, GLB and PNG artifacts remain local and are not committed. The compact acceptance JSON and verification document are the committed evidence index."
+  ]
+}
