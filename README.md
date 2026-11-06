@@ -23,7 +23,7 @@ Full ComfyUI/TRELLIS.2 sources and model weights are **not included**. Installat
 
 The [`hunyuan3d-amd/`](hunyuan3d-amd/) directory contains a focused ComfyUI + Hunyuan3D-2 + u2net installer for native AMD ROCm on Windows. It does not install Pixal3D or WSL. Model weights are downloaded during installation rather than stored in Git.
 
-This is a separate package and is **not covered by the hardware-verified Pixal3D example above**. See its [Russian README](hunyuan3d-amd/README.ru.md) and [source notes](hunyuan3d-amd/SOURCE.md).
+This is a separate package. The author reports successful Hunyuan3D runs on AMD, without measured automated hardware tests; it is not covered by the hardware-verified Pixal3D example above. See its [Russian README](hunyuan3d-amd/README.ru.md) and [source notes](hunyuan3d-amd/SOURCE.md).
 
 ## Requirements
 

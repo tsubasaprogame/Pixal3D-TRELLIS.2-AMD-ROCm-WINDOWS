@@ -38,7 +38,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File installer/amd/Pixal3DNative.
 
 В каталоге [`hunyuan3d-amd/`](hunyuan3d-amd/) находится отдельный установщик **ComfyUI + Hunyuan3D-2 + u2net** для нативного AMD ROCm в Windows. Он не устанавливает Pixal3D и не использует WSL. Веса моделей скачиваются при установке и не хранятся в Git.
 
-Это самостоятельный пакет: приведённый выше проверенный пример Pixal3D **не подтверждает генерацию Hunyuan3D**. Подробности — в [README пакета](hunyuan3d-amd/README.ru.md) и [описании источников](hunyuan3d-amd/SOURCE.md).
+Это самостоятельный пакет. Автор сообщает об успешном запуске и работе Hunyuan3D на AMD, но точные автоматические аппаратные тесты и замеры не проводились. Подробности — в [README пакета](hunyuan3d-amd/README.ru.md) и [описании источников](hunyuan3d-amd/SOURCE.md).
 
 ## Пример
 
