@@ -49,7 +49,7 @@ function SaveAmdComfyModelPaths($dir) {
   Set-Content -LiteralPath (Join-Path $dir 'extra_model_paths.yaml') -Value $yaml -Encoding UTF8
 }
 
-# AMD functions extracted from owner's original AMD toolkit-amd installer/Install-AMD.ps1.
+# AMD functions extracted from owner AMD toolkit installer/Install-AMD.ps1.
 function InstallAmdComfyDeps($dir) {
   $uv = Uv
   $py = Join-Path $dir '.venv\Scripts\python.exe'
@@ -84,7 +84,7 @@ function InstallAmdComfy() {
 
 if ($MyInvocation.InvocationName -eq '.') { return }
 Clear-Host
-Say 'Hunyuan3D - AMD ROCm setup (extracted from owner's original AMD toolkit-amd)' 'White'
+Say 'Hunyuan3D - AMD ROCm setup (extracted from owner AMD toolkit)' 'White'
 $gpu = Select-AmdGpu @(Get-CimInstance Win32_VideoController)
 if (!$gpu) { Say 'Supported discrete AMD GPU not found (RX 9070 XT is the target).' 'Red'; exit 1 }
 Ok ('AMD GPU: ' + $gpu.Name)
