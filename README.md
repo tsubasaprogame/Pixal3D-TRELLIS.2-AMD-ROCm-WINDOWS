@@ -86,4 +86,4 @@ These checks validate manifests, the three HIP wheel hashes, fail-closed contrac
 
 Only the documented RX 9070 XT profile has hardware evidence. NATTEN and nvdiffrast are optional and reported as unsupported in the reviewed environment. This is not a universal AMD backend and does not prove absence of driver stalls or micro-freezes.
 
-The owner's original work is MIT-licensed. Third-party licenses still apply. In particular, cubvh's NVIDIA Source Code License section 3.3 restricts its covered work and derivatives to non-commercial research or evaluation. Read [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and the complete texts in `licenses/` before use or redistribution.
+The owner's original work is MIT-licensed. Third-party licenses still apply. The replacement CuMesh BVH backend uses cuBQL under Apache-2.0 at the pinned revision recorded in `installer/amd/cubql-source.json`. Read [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and the complete texts in `licenses/` before use or redistribution.

@@ -58,4 +58,4 @@ python -m unittest discover -s tests -p "test_*.py" -v
 
 ## Лицензии
 
-Оригинальные файлы владельца распространяются по MIT, но сторонние условия сохраняются. Особенно важно: раздел 3.3 лицензии NVIDIA для cubvh разрешает использование охватываемых работ и производных только для некоммерческих исследований или оценки. Полные тексты находятся в `licenses/`, сводка — в [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Оригинальные файлы владельца распространяются по MIT, но сторонние условия сохраняются. Новый BVH-backend CuMesh использует cuBQL по лицензии Apache-2.0; точная ревизия записана в `installer/amd/cubql-source.json`. Полные тексты находятся в `licenses/`, сводка — в [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

@@ -34,12 +34,19 @@ class NativeContractTests(unittest.TestCase):
                 find_wheel_set(root)
 
     def test_base_and_extension_readiness_fail_closed(self):
+        self.assertIn("cumesh_bvh", MANDATORY_SHAPE_CHECKS)
         base = [{"name": name, "status": "pass"} for name in MANDATORY_CHECKS]
         shape = [{"name": name, "status": "pass"} for name in MANDATORY_SHAPE_CHECKS]
         self.assertTrue(native_ready(base))
         self.assertTrue(shape_ready(shape))
         self.assertFalse(native_ready(base[:-1]))
-        self.assertFalse(shape_ready(shape[:-1]))
+        for index, item in enumerate(shape):
+            with self.subTest(missing=item["name"]):
+                self.assertFalse(shape_ready(shape[:index] + shape[index + 1:]))
+            with self.subTest(failed=item["name"]):
+                failed = [dict(value) for value in shape]
+                failed[index]["status"] = "fail"
+                self.assertFalse(shape_ready(failed))
         shape[0]["status"] = "unsupported"
         self.assertFalse(shape_ready(shape))
 
