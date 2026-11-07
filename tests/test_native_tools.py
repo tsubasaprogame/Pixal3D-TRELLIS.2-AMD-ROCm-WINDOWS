@@ -33,6 +33,12 @@ class NativeContractTests(unittest.TestCase):
             with self.assertRaises(FileNotFoundError):
                 find_wheel_set(root)
 
+    def test_installer_downloads_wheels_before_validating(self):
+        installer = (ROOT / "installer" / "amd" / "Pixal3DNative.ps1").read_text(encoding="utf-8")
+        download = installer.index("$wheels = @(Get-AmdNativeWheelPaths)")
+        validation = installer.index("install_pixal3d_amd.py")
+        self.assertLess(download, validation, "Official wheels must be downloaded before wheel-set validation")
+
     def test_base_and_extension_readiness_fail_closed(self):
         self.assertIn("cumesh_bvh", MANDATORY_SHAPE_CHECKS)
         base = [{"name": name, "status": "pass"} for name in MANDATORY_CHECKS]

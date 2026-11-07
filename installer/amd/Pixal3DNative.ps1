@@ -176,9 +176,9 @@ if (!(Test-Path -LiteralPath $baseMarker) -or $ForceProbe) {
   Install-NativePython
   Invoke-NativePip @('install', '-r', (Join-Path $NativeToolsDir 'requirements-base.txt'))
   $python = Join-Path $RuntimeRoot 'python_embeded\python.exe'
+  $wheels = @(Get-AmdNativeWheelPaths)
   & $python -I (Join-Path $NativeToolsDir 'install_pixal3d_amd.py') --runtime $RuntimeRoot --wheel-dir $NativeWheelDir --check
   if ($LASTEXITCODE -ne 0) { throw 'Native runtime or wheel validation failed.' }
-  $wheels = @(Get-AmdNativeWheelPaths)
   Invoke-NativePip @('install', '--no-index', '--no-deps', '--no-build-isolation', (Get-AmdNativeMetaPackage))
   Invoke-NativePip (@('install', '--no-index', '--no-deps') + $wheels)
 }
