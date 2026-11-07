@@ -197,7 +197,7 @@ class CuBQLGpuParityTests(unittest.TestCase):
             mesh.signed_distance(self.points, distances, face_ids, uvw, 2)
 
     def test_public_wrapper_uses_new_backend(self):
-        source = (ROOT / "../afamd/src/CuMesh/cumesh/bvh.py").read_text(encoding="utf-8")
+        source = (ROOT / "scripts/native/cubql-bvh/cumesh/bvh.py").read_text(encoding="utf-8")
         self.assertIn("from . import _bvh as _backend", source)
         self.assertNotIn("_cubvh", source)
 

@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CUMESH_ROOT = (ROOT / "../afamd/src/CuMesh").resolve()
+CUMESH_ROOT = ROOT / "scripts/native/cubql-bvh"
 
 
 class CuBQLSourceContractTests(unittest.TestCase):
