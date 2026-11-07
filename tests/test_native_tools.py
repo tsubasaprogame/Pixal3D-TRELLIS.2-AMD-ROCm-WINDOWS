@@ -39,6 +39,12 @@ class NativeContractTests(unittest.TestCase):
         validation = installer.index("install_pixal3d_amd.py")
         self.assertLess(download, validation, "Official wheels must be downloaded before wheel-set validation")
 
+    def test_extension_probe_runtime_dependencies_are_declared(self):
+        requirements = (ROOT / "scripts" / "native" / "requirements-base.txt").read_text(encoding="utf-8").splitlines()
+        expected = ("easydict==", "opencv-python-headless==", "plyfile==", "trimesh==", "tqdm==", "zstandard==")
+        missing = [name for name in expected if not any(line.startswith(name) for line in requirements)]
+        self.assertEqual(missing, [], "CuMesh and O-Voxel runtime dependencies must be pinned")
+
     def test_base_and_extension_readiness_fail_closed(self):
         self.assertIn("cumesh_bvh", MANDATORY_SHAPE_CHECKS)
         base = [{"name": name, "status": "pass"} for name in MANDATORY_CHECKS]
