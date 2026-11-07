@@ -1,5 +1,7 @@
 # Pixal3D / TRELLIS.2 — нативный AMD ROCm для Windows
 
+[![no-gpu-smoke](https://github.com/tsubasaprogame/Pixal3D-TRELLIS.2-AMD-ROCm-WINDOWS/actions/workflows/smoke.yml/badge.svg?branch=main)](https://github.com/tsubasaprogame/Pixal3D-TRELLIS.2-AMD-ROCm-WINDOWS/actions/workflows/smoke.yml?query=branch%3Amain)
+
 Независимый комплект установки и проверки Pixal3D / TRELLIS.2 на AMD ROCm/HIP без WSL и без изменения системного Python.
 
 Проверенная конфигурация только одна: **Windows, AMD Radeon RX 9070 XT (`gfx1201`), ROCm 7.2.1, PyTorch 2.9.1+rocm7.2.1**. Поддержка других видеокарт и нейросетей не заявляется.
