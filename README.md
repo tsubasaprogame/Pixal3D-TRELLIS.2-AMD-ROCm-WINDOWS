@@ -76,11 +76,12 @@ The preview and atlas are for inspection; the GLB contains the actual embedded 2
 ## Repository checks (no GPU)
 
 ```powershell
+python -m pip install --disable-pip-version-check numpy==2.5.2
 powershell -NoProfile -ExecutionPolicy Bypass -File tests/Smoke.ps1
-python -m unittest discover -s tests -p "test_*.py" -v
+python -m unittest -v tests/test_bvh_golden.py tests/test_bvh_reference.py tests/test_cubql_bvh.py tests/test_native_tools.py tests/test_publication.py
 ```
 
-These checks validate manifests, the three HIP wheel hashes, fail-closed contracts, example geometry/atlas dimensions, required notices and public-file hygiene. They do not download ROCm/PyTorch or run generation.
+These checks validate manifests, the three HIP wheel hashes, fail-closed contracts, example geometry/atlas dimensions, required notices and public-file hygiene. They do not download ROCm/PyTorch or run generation. Full `test_*.py` discovery additionally requires the AMD/PyTorch environment and an RX 9070 XT; it is intentionally separate from no-GPU CI.
 
 ## Limitations and licensing
 

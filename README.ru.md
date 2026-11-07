@@ -52,9 +52,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File installer/amd/Pixal3DNative.
 ## Проверка репозитория без GPU
 
 ```powershell
+python -m pip install --disable-pip-version-check numpy==2.5.2
 powershell -NoProfile -ExecutionPolicy Bypass -File tests/Smoke.ps1
-python -m unittest discover -s tests -p "test_*.py" -v
+python -m unittest -v tests/test_bvh_golden.py tests/test_bvh_reference.py tests/test_cubql_bvh.py tests/test_native_tools.py tests/test_publication.py
 ```
+
+Полный запуск всех `test_*.py` дополнительно требует AMD/PyTorch-окружение и RX 9070 XT, поэтому он отделён от no-GPU CI.
 
 ## Лицензии
 
